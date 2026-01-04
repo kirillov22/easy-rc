@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	"mouse-server/server/generated"
+	"mouse-server/generated/proto-messages"
 	"net/url"
 	"time"
 
@@ -33,8 +33,8 @@ func main() {
 	//}
 
 	now2 := time.Now().UnixMilli()
-	click := &generated.Click{Timestamp: now2, MouseButton: generated.MouseButton_MOUSE_BUTTON_LEFT}
-	message2 := generated.Message{Msg: &generated.Message_Click{Click: click}, Debug: "BLAH blah foobar"}
+	click := &proto_messages.Click{Timestamp: now2, MouseButton: proto_messages.MouseButton_MOUSE_BUTTON_LEFT}
+	message2 := proto_messages.Message{Msg: &proto_messages.Message_Click{Click: click}, Debug: "BLAH blah foobar"}
 	data, err := proto.Marshal(&message2)
 
 	if err == nil {

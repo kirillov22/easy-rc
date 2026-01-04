@@ -3,8 +3,11 @@
 Soon to be a single monorepo that contains the client, server and shared protobuf model for the two apps.
 
 ## Prerequisites
-- Golang version v1.25
-- Protobuf 
+- Golang version v1.25 - https://go.dev/dl/
+  - Using a version manager such as goenv is recommended - https://github.com/go-nv/goenv
+- Protobuf compiler - https://protobuf.dev/installation/
+- NodeJS v24.12.0 - https://nodejs.org/en/download
+  - Using a version manager such as nvm is recommended - https://github.com/nvm-sh/nvm
 
 
 ## Server
@@ -15,9 +18,13 @@ Soon to be a single monorepo that contains the client, server and shared protobu
 ## Client
 - Basic JS application that acts as a remote from your mobile device to your server
 
-## Protobuf
+## Common
 - Shared protobuf model for the client and server to communicate with one another
 
+# Building
+- Build the protobuf `protoc -I=/<PATH_TO_REPO>/easy-rc --go_out=/<PATH_TO_REPO>/easy-rc common/messages.proto`
+
+# Running
 
 ## TODO list
 - [ ] Migrate from the custom-built protocol to the protobuf schema

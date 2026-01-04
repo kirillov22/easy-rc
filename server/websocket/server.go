@@ -1,12 +1,12 @@
 package websocket
 
 import (
-	"fmt"
+	//"fmt"
 	"log"
-	"mouse-server/server/generated"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
+	//"google.golang.org/protobuf/proto"
+
 	//"mouse-server/messages"
 	"net/http"
 )
@@ -36,24 +36,24 @@ func Server(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		m := &generated.Message{}
-		err = proto.Unmarshal(message, m)
-
-		if err != nil {
-			log.Println("Error unmarshalling message", err)
-		}
-
-		fmt.Printf("Message from proto is: %s\n", m)
-
-		c := m.GetClick()
-		if c != nil {
-			fmt.Printf("Received a click. Button was: %s", c.MouseButton)
-		}
-
-		ping := m.GetPing()
-		if ping != nil {
-			fmt.Printf("Received a PING")
-		}
+		//m := &generated.Message{}
+		//err = proto.Unmarshal(message, m)
+		//
+		//if err != nil {
+		//	log.Println("Error unmarshalling message", err)
+		//}
+		//
+		//fmt.Printf("Message from proto is: %s\n", m)
+		//
+		//c := m.GetClick()
+		//if c != nil {
+		//	fmt.Printf("Received a click. Button was: %s", c.MouseButton)
+		//}
+		//
+		//ping := m.GetPing()
+		//if ping != nil {
+		//	fmt.Printf("Received a PING")
+		//}
 
 		//packet := messages.FromByteArray(message)
 		//mappedMsg, err := messages.MapMessage(&packet)

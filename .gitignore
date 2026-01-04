@@ -352,4 +352,7 @@ dist
 # SvelteKit build / generate output
 .svelte-kit
 
+# Generated proto sources
+server/generated/
+
 # End of https://www.toptal.com/developers/gitignore/api/intellij,node,goland,go
