@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package messages;
+
+option go_package = "/generated";
+
+message Ping {
+  int64 timestamp = 1;
+}
+
+message Pong {
+  int64 timestamp = 1;
+}
+
+message Move {
+  int64 timestamp = 1;
+  int32 moveX = 2;
+  int32 moveY = 3;
+}
+
+message Click {
+  int64 timestamp = 1;
+  MouseButton mouseButton = 2;
+}
+
+enum MouseButton {
+  MOUSE_BUTTON_LEFT = 0;
+  MOUSE_BUTTON_MIDDLE = 1;
+  MOUSE_BUTTON_RIGHT = 2;
+}
+
+message Message {
+  string debug = 5;
+  oneof msg {
+    Ping ping = 1;
+    Pong pong = 2;
+    Move move = 3;
+    Click click = 4;
+  }
+}
