@@ -1,4 +1,4 @@
-module mouse-server
+module easy-rc-server
 
 go 1.25.5
 

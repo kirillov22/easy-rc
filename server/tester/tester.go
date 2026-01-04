@@ -1,8 +1,8 @@
 package main
 
 import (
+	"easy-rc-server/generated/proto-messages"
 	"log"
-	"mouse-server/generated/proto-messages"
 	"net/url"
 	"time"
 
@@ -12,7 +12,7 @@ import (
 
 func main() {
 
-	addr := "192.168.20.16:51022"
+	addr := "192.168.20.16:50631"
 	u := url.URL{Scheme: "ws", Host: addr, Path: "/ws"}
 	log.Printf("connecting to %s", u.String())
 

@@ -1,9 +1,9 @@
 package main
 
 import (
+	"easy-rc-server/websocket"
 	"flag"
 	"fmt"
-	"mouse-server/websocket"
 	"net"
 	//"github.com/go-vgo/robotgo"
 	"log"
