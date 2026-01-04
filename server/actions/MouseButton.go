@@ -1,4 +1,4 @@
-package messages
+package actions
 
 type MouseButton uint16
 

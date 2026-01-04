@@ -4,12 +4,9 @@ import (
 	"easy-rc-server/websocket"
 	"flag"
 	"fmt"
-	"net"
-	//"github.com/go-vgo/robotgo"
 	"log"
+	"net"
 	"net/http"
-	//"strconv"
-	//"strings"
 )
 
 func main() {

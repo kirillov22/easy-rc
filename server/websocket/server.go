@@ -1,10 +1,14 @@
 package websocket
 
 import (
+	"easy-rc-server/actions"
+	"easy-rc-server/generated/proto-messages"
 	//"fmt"
 	"log"
 
 	"github.com/gorilla/websocket"
+	"google.golang.org/protobuf/proto"
+
 	//"google.golang.org/protobuf/proto"
 
 	//"mouse-server/messages"
@@ -36,33 +40,19 @@ func Server(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		//m := &generated.Message{}
-		//err = proto.Unmarshal(message, m)
-		//
-		//if err != nil {
-		//	log.Println("Error unmarshalling message", err)
-		//}
-		//
-		//fmt.Printf("Message from proto is: %s\n", m)
-		//
-		//c := m.GetClick()
-		//if c != nil {
-		//	fmt.Printf("Received a click. Button was: %s", c.MouseButton)
-		//}
-		//
-		//ping := m.GetPing()
-		//if ping != nil {
-		//	fmt.Printf("Received a PING")
-		//}
+		m := &proto_messages.Message{}
+		err = proto.Unmarshal(message, m)
 
-		//packet := messages.FromByteArray(message)
-		//mappedMsg, err := messages.MapMessage(&packet)
-		//if err != nil {
-		//	fmt.Println("Error mapping packet to a message!")
-		//	return
-		//}
-		//
-		//fmt.Println("Successfully mapped message!", mappedMsg)
-		//mappedMsg.Process()
+		if err != nil {
+			log.Println("Error unmarshalling message", err)
+		}
+
+		// TODO Handle error
+		p, err := actions.FromProto(m)
+		r, err := actions.Process(p)
+
+		if r != nil {
+			// TODO: Handle sending back a response
+		}
 	}
 }
