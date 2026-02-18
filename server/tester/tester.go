@@ -13,7 +13,7 @@ import (
 
 func main() {
 
-	addr := "0.0.0.0:50267"
+	addr := "0.0.0.0:50354"
 	u := url.URL{Scheme: "ws", Host: addr, Path: "/ws"}
 	log.Printf("connecting to %s", u.String())
 
@@ -36,6 +36,21 @@ func main() {
 		log.Printf("Writing PING message at: %d\n", now1)
 		c.WriteMessage(websocket.BinaryMessage, data)
 	}
+
+	_, response, err := c.ReadMessage()
+	if err != nil {
+		log.Fatal("Failed to read PONG response:", err)
+	}
+	pongMsg := &proto_messages.Message{}
+	err = proto.Unmarshal(response, pongMsg)
+	if err != nil {
+		log.Fatal("Failed to unmarshal PONG response:", err)
+	}
+	pong, ok := pongMsg.GetMsg().(*proto_messages.Message_Pong)
+	if !ok {
+		log.Fatalf("Expected PONG but got: %T", pongMsg.GetMsg())
+	}
+	log.Printf("Received PONG with timestamp: %d\n", pong.Pong.Timestamp)
 
 	now2 := time.Now().UnixMilli()
 	click := &proto_messages.Click{Timestamp: now2, MouseButton: proto_messages.MouseButton_MOUSE_BUTTON_LEFT}

@@ -66,8 +66,8 @@ func Server(w http.ResponseWriter, r *http.Request) {
 				log.Println("Error marshalling response:", err)
 				continue
 			}
-			log.Println("Would send following response on socket:", data)
-			//err = c.WriteMessage(websocket.BinaryMessage, data)
+			log.Println("Sending response on socket:", data)
+			err = c.WriteMessage(websocket.BinaryMessage, data)
 			if err != nil {
 				log.Println("Error writing response:", err)
 				break
