@@ -4,8 +4,8 @@ type MouseButton uint16
 
 const (
 	LeftButton MouseButton = iota
-	RightButton
 	MiddleButton
+	RightButton
 )
 
 func (m MouseButton) String() string {
