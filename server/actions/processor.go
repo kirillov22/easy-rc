@@ -1,6 +1,6 @@
 package actions
 
-func Process(p Processable, robot Robot) (R any, err error) {
+func Process(p Processable, robot Robot) (Processable, error) {
 	debugLog("[DEBUG] Processing action: %s", p)
 	result, err := p.Process(robot)
 	if err != nil {

@@ -1,44 +1,45 @@
 package main
 
 import (
-	"easy-rc-server/websocket"
+	ws "easy-rc-server/websocket"
+	"context"
 	"flag"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
 	flag.Parse()
-	log.SetFlags(0)
-	http.HandleFunc("/ws", websocket.Server)
-	//http.HandleFunc("/", home)
-	var serverAddress, port = generateAddress()
-	var outboundIp = getOutboundIP()
+	http.HandleFunc("/ws", ws.Server)
 
-	log.Printf("Starting websocket server at: %s. Outbound address to connect to: %s:%d\n", serverAddress, outboundIp, port)
-	log.Fatal(http.ListenAndServe(serverAddress, nil))
-}
-
-func generateAddress() (string, int) {
-	var port, err = getFreePort()
+	listener, err := net.Listen("tcp", "0.0.0.0:0")
 	if err != nil {
-		log.Fatal("Failed to get a free port", err)
+		log.Fatalf("Failed to listen: %v", err)
 	}
-	return fmt.Sprintf("0.0.0.0:%d", port), port
-}
 
-func getFreePort() (port int, err error) {
-	var a *net.TCPAddr
-	if a, err = net.ResolveTCPAddr("tcp", "localhost:0"); err == nil {
-		var l *net.TCPListener
-		if l, err = net.ListenTCP("tcp", a); err == nil {
-			defer l.Close()
-			return l.Addr().(*net.TCPAddr).Port, nil
+	port := listener.Addr().(*net.TCPAddr).Port
+	outboundIP := getOutboundIP()
+	log.Printf("Starting websocket server at: 0.0.0.0:%d. Outbound address to connect to: %s:%d\n", port, outboundIP, port)
+
+	server := &http.Server{}
+
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		sig := <-sigCh
+		log.Printf("Received signal %v, shutting down", sig)
+		if err := server.Shutdown(context.Background()); err != nil {
+			log.Printf("Shutdown error: %v", err)
 		}
+	}()
+
+	if err := server.Serve(listener); err != http.ErrServerClosed {
+		log.Fatalf("Server error: %v", err)
 	}
-	return
 }
 
 func getOutboundIP() net.IP {
@@ -49,6 +50,5 @@ func getOutboundIP() net.IP {
 	defer conn.Close()
 
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
-
 	return localAddr.IP
 }

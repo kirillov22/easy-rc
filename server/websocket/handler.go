@@ -3,6 +3,7 @@ package websocket
 import (
 	"easy-rc-server/actions"
 	proto_messages "easy-rc-server/generated/proto-messages"
+	"easy-rc-server/protocol"
 
 	"google.golang.org/protobuf/proto"
 )
@@ -21,7 +22,7 @@ func (h *MessageHandler) HandleMessage(data []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	p, err := actions.FromProto(m)
+	p, err := protocol.FromProto(m)
 	if err != nil {
 		return nil, err
 	}
@@ -35,12 +36,7 @@ func (h *MessageHandler) HandleMessage(data []byte) ([]byte, error) {
 		return nil, nil
 	}
 
-	resp, ok := r.(actions.Processable)
-	if !ok {
-		return nil, nil
-	}
-
-	protoResp, err := actions.ToProto(resp)
+	protoResp, err := protocol.ToProto(r)
 	if err != nil {
 		return nil, err
 	}

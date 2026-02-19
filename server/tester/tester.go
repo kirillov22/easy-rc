@@ -1,3 +1,5 @@
+//go:build debug
+
 package main
 
 import (
@@ -103,7 +105,7 @@ func main() {
 	message6 := proto_messages.Message{Msg: &proto_messages.Message_Click{Click: rightClick}, Debug: "Right clicking"}
 	data, err = proto.Marshal(&message6)
 	if err == nil {
-		log.Printf("Writing RIGHT CLICK message at: %d\n", now5)
+		log.Printf("Writing RIGHT CLICK message at: %d\n", now6)
 		c.WriteMessage(websocket.BinaryMessage, data)
 	}
 }

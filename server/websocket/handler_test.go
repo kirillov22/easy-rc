@@ -1,6 +1,7 @@
 package websocket
 
 import (
+	"easy-rc-server/actions"
 	proto_messages "easy-rc-server/generated/proto-messages"
 	"testing"
 
@@ -9,7 +10,7 @@ import (
 
 type FakeRobot struct {
 	X, Y   int
-	Clicks []string
+	Clicks []actions.MouseButton
 	Moves  []struct{ X, Y int }
 }
 
@@ -23,7 +24,7 @@ func (f *FakeRobot) Location() (int, int) {
 	return f.X, f.Y
 }
 
-func (f *FakeRobot) Click(button string) {
+func (f *FakeRobot) Click(button actions.MouseButton) {
 	f.Clicks = append(f.Clicks, button)
 }
 
@@ -110,7 +111,7 @@ func TestClickLeft(t *testing.T) {
 		t.Fatal("expected nil response for click")
 	}
 
-	if len(robot.Clicks) != 1 || robot.Clicks[0] != "left" {
+	if len(robot.Clicks) != 1 || robot.Clicks[0] != actions.LeftButton {
 		t.Errorf("expected single left click, got %v", robot.Clicks)
 	}
 }
@@ -133,7 +134,7 @@ func TestClickRight(t *testing.T) {
 		t.Fatal("expected nil response for click")
 	}
 
-	if len(robot.Clicks) != 1 || robot.Clicks[0] != "right" {
+	if len(robot.Clicks) != 1 || robot.Clicks[0] != actions.RightButton {
 		t.Errorf("expected single right click, got %v", robot.Clicks)
 	}
 }
@@ -156,7 +157,7 @@ func TestClickMiddle(t *testing.T) {
 		t.Fatal("expected nil response for click")
 	}
 
-	if len(robot.Clicks) != 1 || robot.Clicks[0] != "middle" {
+	if len(robot.Clicks) != 1 || robot.Clicks[0] != actions.MiddleButton {
 		t.Errorf("expected single middle click, got %v", robot.Clicks)
 	}
 }

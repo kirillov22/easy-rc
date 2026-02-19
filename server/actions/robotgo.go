@@ -16,6 +16,6 @@ func (r *RobotGo) Location() (int, int) {
 	return robotgo.Location()
 }
 
-func (r *RobotGo) Click(button string) {
-	robotgo.Click(button)
+func (r *RobotGo) Click(button MouseButton) {
+	robotgo.Click(button.String())
 }

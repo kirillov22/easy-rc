@@ -9,7 +9,15 @@ type Pong struct {
 	timestamp time.Time
 }
 
-func (p Pong) Process(_ Robot) (R any, err error) {
+func NewPong(timestamp time.Time) Pong {
+	return Pong{timestamp: timestamp}
+}
+
+func (p Pong) Timestamp() time.Time {
+	return p.timestamp
+}
+
+func (p Pong) Process(_ Robot) (Processable, error) {
 	return nil, nil
 }
 

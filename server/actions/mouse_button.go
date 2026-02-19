@@ -17,6 +17,6 @@ func (m MouseButton) String() string {
 	case MiddleButton:
 		return "middle"
 	default:
-		return "left"
+		return "unknown"
 	}
 }

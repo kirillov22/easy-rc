@@ -4,7 +4,11 @@ import "time"
 
 type Ping struct{}
 
-func (p Ping) Process(_ Robot) (R any, err error) {
+func NewPing() Ping {
+	return Ping{}
+}
+
+func (p Ping) Process(_ Robot) (Processable, error) {
 	return Pong{timestamp: time.Now()}, nil
 }
 

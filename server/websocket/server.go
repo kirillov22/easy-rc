@@ -67,8 +67,6 @@ func Server(w http.ResponseWriter, r *http.Request) {
 			log.Println("read:", err)
 			break
 		}
-		log.Printf("recv: %s", message)
-
 		response, err := handler.HandleMessage(message)
 		if err != nil {
 			log.Println("Error handling message:", err)
