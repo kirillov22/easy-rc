@@ -6,12 +6,18 @@ import { setupButtons } from "./input/buttons.js";
 import { setupStatusIndicator } from "./ui/status-indicator.js";
 import { encodeMove, encodeClick } from "./proto-helpers.js";
 
+function getElement(id: string): HTMLElement {
+  const el = document.getElementById(id);
+  if (!el) throw new Error(`Missing element: #${id}`);
+  return el;
+}
+
 const client = new WebSocketClient(buildWsUrl());
 const heartbeat = new Heartbeat(client);
 
 const updateStatus = setupStatusIndicator(
-  document.getElementById("status-dot")!,
-  document.getElementById("status-text")!,
+  getElement("status-dot"),
+  getElement("status-text"),
 );
 
 client.onStateChange((state) => {
@@ -23,11 +29,11 @@ client.onStateChange((state) => {
   }
 });
 
-setupTouchpad(document.getElementById("touchpad")!, (dx, dy) => {
+setupTouchpad(getElement("touchpad"), (dx, dy) => {
   client.send(encodeMove(dx, dy));
 });
 
-setupButtons(document.getElementById("buttons")!, (button) => {
+setupButtons(getElement("buttons"), (button) => {
   client.send(encodeClick(button));
 });
 

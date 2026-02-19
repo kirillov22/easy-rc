@@ -1,18 +1,22 @@
 export type ConnectionState = "connecting" | "connected" | "disconnected";
 export type StateListener = (state: ConnectionState) => void;
 
-const RECONNECT_DELAY_MS = 2000;
+const INITIAL_RECONNECT_DELAY_MS = 2000;
+const MAX_RECONNECT_DELAY_MS = 30000;
 
 export class WebSocketClient {
   private ws: WebSocket | null = null;
-  private listeners: StateListener[] = [];
+  private stateListeners: StateListener[] = [];
+  private messageListeners: ((data: ArrayBuffer) => void)[] = [];
   private shouldReconnect = true;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private reconnectDelay = INITIAL_RECONNECT_DELAY_MS;
 
   constructor(private url: string) {}
 
   connect(): void {
     this.shouldReconnect = true;
+    this.reconnectDelay = INITIAL_RECONNECT_DELAY_MS;
     this.open();
   }
 
@@ -31,30 +35,37 @@ export class WebSocketClient {
     }
   }
 
-  onMessage(handler: (data: ArrayBuffer) => void): void {
-    this._onMessage = handler;
+  onMessage(handler: (data: ArrayBuffer) => void): () => void {
+    this.messageListeners.push(handler);
+    return () => {
+      this.messageListeners = this.messageListeners.filter(h => h !== handler);
+    };
   }
 
   onStateChange(listener: StateListener): void {
-    this.listeners.push(listener);
+    this.stateListeners.push(listener);
   }
 
   get connected(): boolean {
     return this.ws?.readyState === WebSocket.OPEN;
   }
 
-  private _onMessage: ((data: ArrayBuffer) => void) | null = null;
-
   private open(): void {
+    this.ws?.close();
     this.notify("connecting");
     const ws = new WebSocket(this.url);
     ws.binaryType = "arraybuffer";
 
-    ws.onopen = () => this.notify("connected");
+    ws.onopen = () => {
+      this.reconnectDelay = INITIAL_RECONNECT_DELAY_MS;
+      this.notify("connected");
+    };
 
     ws.onmessage = (event) => {
       if (event.data instanceof ArrayBuffer) {
-        this._onMessage?.(event.data);
+        for (const listener of this.messageListeners) {
+          listener(event.data);
+        }
       }
     };
 
@@ -62,17 +73,21 @@ export class WebSocketClient {
       this.notify("disconnected");
       this.ws = null;
       if (this.shouldReconnect) {
-        this.reconnectTimer = setTimeout(() => this.open(), RECONNECT_DELAY_MS);
+        this.reconnectTimer = setTimeout(() => this.open(), this.reconnectDelay);
+        this.reconnectDelay = Math.min(this.reconnectDelay * 2, MAX_RECONNECT_DELAY_MS);
       }
     };
 
-    ws.onerror = () => ws.close();
+    ws.onerror = (event) => {
+      console.error("WebSocket error:", event);
+      ws.close();
+    };
 
     this.ws = ws;
   }
 
   private notify(state: ConnectionState): void {
-    for (const listener of this.listeners) {
+    for (const listener of this.stateListeners) {
       listener(state);
     }
   }

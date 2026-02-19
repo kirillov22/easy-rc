@@ -4,7 +4,6 @@ export function setupTouchpad(element: HTMLElement, onMove: MoveHandler): void {
   let lastX = 0;
   let lastY = 0;
   let tracking = false;
-  let rafId = 0;
 
   element.addEventListener("touchstart", (e) => {
     e.preventDefault();
@@ -22,20 +21,10 @@ export function setupTouchpad(element: HTMLElement, onMove: MoveHandler): void {
     const moveY = touch.clientY - lastY;
     lastX = touch.clientX;
     lastY = touch.clientY;
-
     onMove(moveX, moveY);
-    if (!rafId) {
-      rafId = requestAnimationFrame(() => onMove(moveX, moveY));
-    }
   }, { passive: false });
 
-  const endTracking = () => {
-    tracking = false;
-    if (rafId) {
-      cancelAnimationFrame(rafId);
-      rafId = 0;
-    }
-  };
+  const endTracking = () => { tracking = false; };
 
   element.addEventListener("touchend", endTracking);
   element.addEventListener("touchcancel", endTracking);
