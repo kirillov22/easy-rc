@@ -16,17 +16,15 @@ func NewMessageHandler(robot actions.Robot) *MessageHandler {
 	return &MessageHandler{robot: robot}
 }
 
-func (h *MessageHandler) HandleMessage(data []byte) ([]byte, error) {
+func (h *MessageHandler) ParseMessage(data []byte) (actions.Processable, error) {
 	m := &proto_messages.Message{}
 	if err := proto.Unmarshal(data, m); err != nil {
 		return nil, err
 	}
+	return protocol.FromProto(m)
+}
 
-	p, err := protocol.FromProto(m)
-	if err != nil {
-		return nil, err
-	}
-
+func (h *MessageHandler) ProcessAction(p actions.Processable) ([]byte, error) {
 	r, err := actions.Process(p, h.robot)
 	if err != nil {
 		return nil, err
@@ -42,4 +40,12 @@ func (h *MessageHandler) HandleMessage(data []byte) ([]byte, error) {
 	}
 
 	return proto.Marshal(protoResp)
+}
+
+func (h *MessageHandler) HandleMessage(data []byte) ([]byte, error) {
+	p, err := h.ParseMessage(data)
+	if err != nil {
+		return nil, err
+	}
+	return h.ProcessAction(p)
 }

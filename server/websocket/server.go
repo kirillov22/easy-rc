@@ -60,24 +60,41 @@ func Server(w http.ResponseWriter, r *http.Request) {
 	defer c.Close()
 
 	handler := NewMessageHandler(actions.NewRobotGo())
+	ch := make(chan actions.Processable, 64)
 
-	for {
-		_, message, err := c.ReadMessage()
-		if err != nil {
-			log.Println("read:", err)
-			break
+	go func() {
+		defer close(ch)
+		for {
+			_, message, err := c.ReadMessage()
+			if err != nil {
+				log.Println("read:", err)
+				return
+			}
+			parsed, err := handler.ParseMessage(message)
+			if err != nil {
+				log.Println("Error parsing message:", err)
+				continue
+			}
+			ch <- parsed
 		}
-		response, err := handler.HandleMessage(message)
-		if err != nil {
-			log.Println("Error handling message:", err)
-			continue
-		}
+	}()
 
-		if response != nil {
-			log.Println("Sending response on socket:", response)
-			if err := c.WriteMessage(websocket.BinaryMessage, response); err != nil {
-				log.Println("Error writing response:", err)
-				break
+	for first := range ch {
+		batch := drainChannel(first, ch)
+		coalesced := CoalesceActions(batch)
+
+		for _, action := range coalesced {
+			response, err := handler.ProcessAction(action)
+			if err != nil {
+				log.Println("Error processing action:", err)
+				continue
+			}
+			if response != nil {
+				log.Println("Sending response on socket:", response)
+				if err := c.WriteMessage(websocket.BinaryMessage, response); err != nil {
+					log.Println("Error writing response:", err)
+					return
+				}
 			}
 		}
 	}

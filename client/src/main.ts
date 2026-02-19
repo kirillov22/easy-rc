@@ -16,11 +16,11 @@ const updateStatus = setupStatusIndicator(
 
 client.onStateChange((state) => {
   updateStatus(state);
-  // if (state === "connected") {
-  //   heartbeat.start(() => client.disconnect());
-  // } else if (state === "disconnected") {
-  //   heartbeat.stop();
-  // }
+  if (state === "connected") {
+    heartbeat.start(() => client.disconnect());
+  } else if (state === "disconnected") {
+    heartbeat.stop();
+  }
 });
 
 setupTouchpad(document.getElementById("touchpad")!, (dx, dy) => {
