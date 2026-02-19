@@ -26,8 +26,12 @@ Soon to be a single monorepo that contains the client, server and shared protobu
 
 # Running
 
+## Server
+- Development (with debug logging): `cd server && go run -tags debug .`
+- Production (no debug logging): `cd server && go build -o server .`
+
 ## TODO list
-- [ ] Migrate from the custom-built protocol to the protobuf schema
+- [x] Migrate from the custom-built protocol to the protobuf schema
 - [ ] Migrate the code (merge client) into a monorepo to easier share the protobuf models
 - [ ] Create QR code/ simple way for client to connect - https://github.com/caseymrm/menuet
 - [ ] Refactor server to have the websocket be decoupled from the command processing so it can be tested

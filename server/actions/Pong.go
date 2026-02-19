@@ -10,10 +10,9 @@ type Pong struct {
 }
 
 func (p Pong) Process(_ Robot) (R any, err error) {
-	fmt.Println("Processing pong! Doing nothing extra")
 	return nil, nil
 }
 
-func (p Pong) Debug() {
-	fmt.Println("PONG!")
+func (p Pong) String() string {
+	return fmt.Sprintf("Pong{timestamp=%s}", p.timestamp.Format(time.RFC3339))
 }
