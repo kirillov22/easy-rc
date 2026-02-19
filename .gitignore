@@ -352,6 +352,9 @@ dist
 # SvelteKit build / generate output
 .svelte-kit
 
+# Build output
+bin/
+
 # Generated proto sources
 server/generated/
 

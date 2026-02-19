@@ -1,14 +1,14 @@
+import * as $protobuf from "protobufjs/minimal";
 import { Message, MouseButton } from "./generated/messages.js";
 
+const moveMsg = Message.create({ move: { moveX: 0, moveY: 0 } });
+const moveWriter = $protobuf.Writer.create();
+
 export function encodeMove(deltaX: number, deltaY: number): Uint8Array {
-  const msg = Message.create({
-    move: {
-      timestamp: Date.now(),
-      moveX: Math.round(deltaX),
-      moveY: Math.round(deltaY),
-    },
-  });
-  return Message.encode(msg).finish();
+  moveMsg.move!.moveX = Math.round(deltaX);
+  moveMsg.move!.moveY = Math.round(deltaY);
+  moveWriter.reset();
+  return Message.encode(moveMsg, moveWriter).finish();
 }
 
 export function encodeClick(button: "left" | "middle" | "right"): Uint8Array {

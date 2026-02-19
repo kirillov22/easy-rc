@@ -18,6 +18,7 @@ echo "Running tests..."
 go test ./...
 
 echo "Building production binary..."
-go build -o server .
+mkdir -p "$REPO_ROOT/bin"
+go build -o "$REPO_ROOT/bin/server" .
 
-echo "Production build complete: server/server"
+echo "Production build complete: bin/server"
