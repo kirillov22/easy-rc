@@ -6,13 +6,13 @@ const MAX_RECONNECT_DELAY_MS = 30000;
 
 export class WebSocketClient {
   private ws: WebSocket | null = null;
-  private stateListeners: StateListener[] = [];
+  private readonly stateListeners: StateListener[] = [];
   private messageListeners: ((data: ArrayBuffer) => void)[] = [];
   private shouldReconnect = true;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private reconnectDelay = INITIAL_RECONNECT_DELAY_MS;
 
-  constructor(private url: string) {}
+  constructor(private readonly url: string) {}
 
   connect(): void {
     this.shouldReconnect = true;

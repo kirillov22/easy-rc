@@ -12,9 +12,10 @@ export class Heartbeat {
   private onTimeout: (() => void) | null = null;
   private unsubscribe: (() => void) | null = null;
 
-  constructor(private client: WebSocketClient) {}
+  constructor(private readonly client: WebSocketClient) {}
 
   start(onTimeout: () => void): void {
+    // Protect against start being called twice in a row and creating orphaned objects
     this.stop();
     this.onTimeout = onTimeout;
     this.lastPong = Date.now();
