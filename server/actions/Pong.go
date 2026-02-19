@@ -9,7 +9,7 @@ type Pong struct {
 	timestamp time.Time
 }
 
-func (p Pong) Process() (R any, err error) {
+func (p Pong) Process(_ Robot) (R any, err error) {
 	fmt.Println("Processing pong! Doing nothing extra")
 	return nil, nil
 }

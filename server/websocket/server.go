@@ -2,26 +2,65 @@ package websocket
 
 import (
 	"easy-rc-server/actions"
-	"easy-rc-server/generated/proto-messages"
 	"log"
+	"net"
 	"net/http"
+	"net/url"
 
 	"github.com/gorilla/websocket"
-	"google.golang.org/protobuf/proto"
 )
 
-var upgrader = websocket.Upgrader{} // use default options
+var (
+	localNetworks = []net.IPNet{
+		{IP: net.IP{10, 0, 0, 0}, Mask: net.CIDRMask(8, 32)},
+		{IP: net.IP{172, 16, 0, 0}, Mask: net.CIDRMask(12, 32)},
+		{IP: net.IP{192, 168, 0, 0}, Mask: net.CIDRMask(16, 32)},
+		{IP: net.IP{127, 0, 0, 0}, Mask: net.CIDRMask(8, 32)},
+	}
+
+	upgrader = websocket.Upgrader{CheckOrigin: checkLocalOrigin}
+)
+
+func checkLocalOrigin(r *http.Request) bool {
+	origin := r.Header.Get("Origin")
+	if origin == "" {
+		return true
+	}
+
+	u, err := url.Parse(origin)
+	if err != nil {
+		return false
+	}
+
+	host := u.Hostname()
+	if host == "localhost" {
+		return true
+	}
+
+	ip := net.ParseIP(host)
+	if ip == nil {
+		return false
+	}
+
+	for _, network := range localNetworks {
+		if network.Contains(ip) {
+			return true
+		}
+	}
+
+	return false
+}
 
 func Server(w http.ResponseWriter, r *http.Request) {
-	// TODO: Change this later
-	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print("upgrade:", err)
 		return
 	}
 	defer c.Close()
-	// TODO: Extract this out into a separate file so it can be tested
+
+	handler := NewMessageHandler(actions.NewRobotGo())
+
 	for {
 		_, message, err := c.ReadMessage()
 		if err != nil {
@@ -30,45 +69,15 @@ func Server(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Printf("recv: %s", message)
 
-		m := &proto_messages.Message{}
-		err = proto.Unmarshal(message, m)
-
+		response, err := handler.HandleMessage(message)
 		if err != nil {
-			log.Println("Error unmarshalling message:", err)
+			log.Println("Error handling message:", err)
 			continue
 		}
 
-		p, err := actions.FromProto(m)
-		if err != nil {
-			log.Println("Error mapping message:", err)
-			continue
-		}
-
-		r, err := actions.Process(p)
-		if err != nil {
-			log.Println("Error processing message:", err)
-			continue
-		}
-
-		if r != nil {
-			resp, ok := r.(actions.Processable)
-			if !ok {
-				log.Println("Process result is not a Processable")
-				continue
-			}
-			protoResp, err := actions.ToProto(resp)
-			if err != nil {
-				log.Println("Error converting response to proto:", err)
-				continue
-			}
-			data, err := proto.Marshal(protoResp)
-			if err != nil {
-				log.Println("Error marshalling response:", err)
-				continue
-			}
-			log.Println("Sending response on socket:", data)
-			err = c.WriteMessage(websocket.BinaryMessage, data)
-			if err != nil {
+		if response != nil {
+			log.Println("Sending response on socket:", response)
+			if err := c.WriteMessage(websocket.BinaryMessage, response); err != nil {
 				log.Println("Error writing response:", err)
 				break
 			}
