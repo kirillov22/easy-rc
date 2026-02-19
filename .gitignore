@@ -355,4 +355,10 @@ dist
 # Generated proto sources
 server/generated/
 
+# Generated client protobuf stubs
+client/src/generated/
+
+# Built client served by Go binary
+server/static/
+
 # End of https://www.toptal.com/developers/gitignore/api/intellij,node,goland,go

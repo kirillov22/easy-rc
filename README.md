@@ -6,8 +6,26 @@ Soon to be a single monorepo that contains the client, server and shared protobu
 - Golang version v1.25 - https://go.dev/dl/
   - Using a version manager such as goenv is recommended - https://github.com/go-nv/goenv
 - Protobuf compiler - https://protobuf.dev/installation/
+- `protoc-gen-go` - Go code generator plugin for protobuf
 - NodeJS v24.12.0 - https://nodejs.org/en/download
   - Using a version manager such as nvm is recommended - https://github.com/nvm-sh/nvm
+
+### Setting up Go with goenv
+
+1. Install goenv: https://github.com/go-nv/goenv#installation
+2. Install and activate the required Go version:
+   ```bash
+   goenv install 1.25.5
+   goenv global 1.25.5   # or `goenv local 1.25.5` inside this repo
+   ```
+3. Ensure `$(go env GOPATH)/bin` is on your PATH. Add this to your shell profile (`.zshrc`, `.bashrc`, etc.):
+   ```bash
+   export PATH="$(go env GOPATH)/bin:$PATH"
+   ```
+4. Install the protobuf Go plugin:
+   ```bash
+   go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+   ```
 
 
 ## Server
@@ -21,14 +39,23 @@ Soon to be a single monorepo that contains the client, server and shared protobu
 ## Common
 - Shared protobuf model for the client and server to communicate with one another
 
-# Building
-- Build the protobuf `protoc -I=/<PATH_TO_REPO>/easy-rc --go_out=/<PATH_TO_REPO>/easy-rc common/messages.proto`
+# Scripts
+
+Build scripts are in the `scripts/` directory. They can be run from any working directory.
+
+| Script | Description |
+|--------|-------------|
+| `./scripts/proto.sh` | Regenerate Go code from the protobuf schema |
+| `./scripts/dev.sh` | Build the server with debug logging enabled |
+| `./scripts/build.sh` | Production build: generates proto, runs vet + tests, then builds the binary |
+
+All scripts output the server binary to `server/server`.
 
 # Running
 
 ## Server
-- Development (with debug logging): `cd server && go run -tags debug .`
-- Production (no debug logging): `cd server && go build -o server .`
+- Development: `./scripts/dev.sh && ./server/server`
+- Production: `./scripts/build.sh && ./server/server`
 
 ## TODO list
 - [x] Migrate from the custom-built protocol to the protobuf schema

@@ -1,6 +1,7 @@
-package actions
+package model
 
 import (
+	"easy-rc-server/actions"
 	"fmt"
 	"time"
 )
@@ -17,7 +18,7 @@ func (p Pong) Timestamp() time.Time {
 	return p.timestamp
 }
 
-func (p Pong) Process(_ Robot) (Processable, error) {
+func (p Pong) Process(_ actions.Robot) (actions.Processable, error) {
 	return nil, nil
 }
 

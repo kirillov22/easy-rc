@@ -1,0 +1,18 @@
+{
+  "name": "easy-rc-client",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "proto": "pbjs -t static-module -w es6 --force-number --no-delimited --no-convert --no-verify -o src/generated/messages.js ../common/messages.proto && pbts -o src/generated/messages.d.ts src/generated/messages.js",
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0",
+    "protobufjs-cli": "^1.1.3"
+  },
+  "dependencies": {
+    "protobufjs": "^7.4.0"
+  }
+}

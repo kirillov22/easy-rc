@@ -1,6 +1,9 @@
-package actions
+package model
 
-import "time"
+import (
+	"easy-rc-server/actions"
+	"time"
+)
 
 type Ping struct{}
 
@@ -8,7 +11,7 @@ func NewPing() Ping {
 	return Ping{}
 }
 
-func (p Ping) Process(_ Robot) (Processable, error) {
+func (p Ping) Process(_ actions.Robot) (actions.Processable, error) {
 	return Pong{timestamp: time.Now()}, nil
 }
 

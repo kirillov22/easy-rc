@@ -1,6 +1,9 @@
-package actions
+package model
 
-import "fmt"
+import (
+	"easy-rc-server/actions"
+	"fmt"
+)
 
 type Move struct {
 	moveX int32
@@ -19,7 +22,7 @@ func (m Move) MoveY() int32 {
 	return m.moveY
 }
 
-func (m Move) Process(robot Robot) (Processable, error) {
+func (m Move) Process(robot actions.Robot) (actions.Processable, error) {
 	currentX, currentY := robot.Location()
 	newX := currentX + int(m.moveX)
 	newY := currentY + int(m.moveY)

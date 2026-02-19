@@ -3,7 +3,9 @@ package main
 import (
 	ws "easy-rc-server/websocket"
 	"context"
+	"embed"
 	"flag"
+	"io/fs"
 	"log"
 	"net"
 	"net/http"
@@ -12,9 +14,18 @@ import (
 	"syscall"
 )
 
+//go:embed static/*
+var staticFiles embed.FS
+
 func main() {
 	flag.Parse()
 	http.HandleFunc("/ws", ws.Server)
+
+	staticContent, err := fs.Sub(staticFiles, "static")
+	if err != nil {
+		log.Fatalf("Failed to create static sub-filesystem: %v", err)
+	}
+	http.Handle("/", http.FileServer(http.FS(staticContent)))
 
 	listener, err := net.Listen("tcp", "0.0.0.0:0")
 	if err != nil {
