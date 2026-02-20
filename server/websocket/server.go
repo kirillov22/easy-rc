@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -60,10 +61,12 @@ func Server(w http.ResponseWriter, r *http.Request) {
 	defer c.Close()
 
 	handler := NewMessageHandler(actions.NewRobotGo())
-	ch := make(chan actions.Processable, 64)
+	coalescedActionsChannel := make(chan actions.Processable, 64)
+	responseCh := make(chan actions.ActionResponse, 64)
+	var wg sync.WaitGroup
 
 	go func() {
-		defer close(ch)
+		defer close(coalescedActionsChannel)
 		for {
 			_, message, err := c.ReadMessage()
 			if err != nil {
@@ -75,27 +78,43 @@ func Server(w http.ResponseWriter, r *http.Request) {
 				log.Println("Error parsing message:", err)
 				continue
 			}
-			ch <- parsed
+			coalescedActionsChannel <- parsed
 		}
 	}()
 
-	for first := range ch {
-		batch := drainChannel(first, ch)
+	go func() {
+		for res := range responseCh {
+			handleActionProcessorResponse(res, c)
+		}
+	}()
+
+	for first := range coalescedActionsChannel {
+		batch := drainChannel(first, coalescedActionsChannel)
 		coalesced := CoalesceActions(batch)
 
 		for _, action := range coalesced {
-			response, err := handler.ProcessAction(action)
-			if err != nil {
-				log.Println("Error processing action:", err)
-				continue
-			}
-			if response != nil {
-				log.Println("Sending response on socket:", response)
-				if err := c.WriteMessage(websocket.BinaryMessage, response); err != nil {
-					log.Println("Error writing response:", err)
-					return
-				}
-			}
+			wg.Add(1)
+			go handler.ProcessAction(action, &wg, responseCh)
 		}
+	}
+
+	wg.Wait()
+	close(responseCh)
+}
+
+func handleActionProcessorResponse(res actions.ActionResponse, c *websocket.Conn) {
+	if res.Data != nil && res.Err != nil {
+		log.Println("Something is totally broken, should not received both data and an error: ", res.Data, res.Err)
+	}
+
+	if res.Data != nil {
+		log.Println("Sending response on socket:", res.Data)
+		if err := c.WriteMessage(websocket.BinaryMessage, res.Data); err != nil {
+			log.Println("Error writing response:", err)
+		}
+	}
+
+	if res.Err != nil {
+		log.Println("Got error on the channel: ", res.Err)
 	}
 }
