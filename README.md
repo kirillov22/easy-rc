@@ -49,13 +49,13 @@ Build scripts are in the `scripts/` directory. They can be run from any working 
 | `./scripts/dev.sh` | Build the server with debug logging enabled |
 | `./scripts/build.sh` | Production build: generates proto, runs vet + tests, then builds the binary |
 
-All scripts output the server binary to `server/server`.
+All scripts output the server binary to `server/bin`.
 
 # Running
 
 ## Server
-- Development: `./scripts/dev.sh && ./server/server`
-- Production: `./scripts/build.sh && ./server/server`
+- Development: `./scripts/dev.sh && ./server/bin/easy-rc-server`
+- Production: `./scripts/build.sh && ./server/bin/easy-rc-server`
 
 ## TODO list
 - [x] Migrate from the custom-built protocol to the protobuf schema
