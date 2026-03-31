@@ -59,8 +59,8 @@ All scripts output the server binary to `server/bin`.
 
 ## TODO list
 - [x] Migrate from the custom-built protocol to the protobuf schema
-- [ ] Migrate the code (merge client) into a monorepo to easier share the protobuf models
+- [x] Migrate the code (merge client) into a monorepo to easier share the protobuf models
 - [ ] Create QR code/ simple way for client to connect - https://github.com/caseymrm/menuet
 - [ ] Refactor server to have the websocket be decoupled from the command processing so it can be tested
-- [ ] Create scripts that build & run the applications all at once
+- [x] Create scripts that build & run the applications all at once
 - [ ] Tests xD

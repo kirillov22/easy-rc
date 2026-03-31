@@ -43,6 +43,19 @@ html, body {
   background: #2ecc71;
 }
 
+#accel-select {
+  margin-left: auto;
+  padding: 4px 8px;
+  border: 1px solid #533483;
+  border-radius: 8px;
+  background: #16213e;
+  color: #e0e0e0;
+  font-size: 12px;
+  font-weight: 600;
+  touch-action: manipulation;
+  -webkit-appearance: none;
+}
+
 #touchpad {
   flex: 1;
   background: #0f3460;
