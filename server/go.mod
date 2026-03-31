@@ -5,6 +5,7 @@ go 1.25.5
 require (
 	github.com/go-vgo/robotgo v1.0.0
 	github.com/gorilla/websocket v1.5.3
+	github.com/yeqown/go-qrcode/v2 v2.2.5
 	google.golang.org/protobuf v1.36.11
 )
 
@@ -29,6 +30,7 @@ require (
 	github.com/vcaesar/keycode v0.10.1 // indirect
 	github.com/vcaesar/screenshot v0.11.1 // indirect
 	github.com/vcaesar/tt v0.20.1 // indirect
+	github.com/yeqown/reedsolomon v1.0.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/exp v0.0.0-20251219203646-944ab1f22d93 // indirect
 	golang.org/x/image v0.34.0 // indirect

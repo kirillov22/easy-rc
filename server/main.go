@@ -5,6 +5,7 @@ import (
 	"context"
 	"embed"
 	"flag"
+	"fmt"
 	"io/fs"
 	"log"
 	"net"
@@ -12,6 +13,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	qrcode "github.com/yeqown/go-qrcode/v2"
 )
 
 //go:embed static/*
@@ -34,7 +37,9 @@ func main() {
 
 	port := listener.Addr().(*net.TCPAddr).Port
 	outboundIP := getOutboundIP()
+	connectURL := fmt.Sprintf("http://%s:%d", outboundIP, port)
 	log.Printf("Starting websocket server at: 0.0.0.0:%d. Outbound address to connect to: %s:%d\n", port, outboundIP, port)
+	printQRCode(connectURL)
 
 	server := &http.Server{}
 
@@ -50,6 +55,18 @@ func main() {
 
 	if err := server.Serve(listener); err != http.ErrServerClosed {
 		log.Fatalf("Server error: %v", err)
+	}
+}
+
+func printQRCode(url string) {
+	qr, err := qrcode.New(url)
+	if err != nil {
+		log.Printf("Failed to generate QR code: %v", err)
+		return
+	}
+
+	if err := qr.Save(&stdoutWriter{}); err != nil {
+		log.Printf("Failed to print QR code: %v", err)
 	}
 }
 
