@@ -3,30 +3,11 @@ package websocket
 import (
 	"easy-rc-server/actions"
 	proto_messages "easy-rc-server/generated/proto-messages"
+	"easy-rc-server/internal/testutil"
 	"testing"
 
 	"google.golang.org/protobuf/proto"
 )
-
-type FakeRobot struct {
-	X, Y   int
-	Clicks []actions.MouseButton
-	Moves  []struct{ X, Y int }
-}
-
-func (f *FakeRobot) Move(x, y int) {
-	f.X = x
-	f.Y = y
-	f.Moves = append(f.Moves, struct{ X, Y int }{x, y})
-}
-
-func (f *FakeRobot) Location() (int, int) {
-	return f.X, f.Y
-}
-
-func (f *FakeRobot) Click(button actions.MouseButton) {
-	f.Clicks = append(f.Clicks, button)
-}
 
 func marshalMessage(t *testing.T, msg *proto_messages.Message) []byte {
 	t.Helper()
@@ -38,7 +19,7 @@ func marshalMessage(t *testing.T, msg *proto_messages.Message) []byte {
 }
 
 func TestPingReturnsPong(t *testing.T) {
-	robot := &FakeRobot{}
+	robot := &testutil.FakeRobot{}
 	handler := NewMessageHandler(robot)
 
 	data := marshalMessage(t, &proto_messages.Message{
@@ -71,7 +52,7 @@ func TestPingReturnsPong(t *testing.T) {
 }
 
 func TestPongReturnsNothing(t *testing.T) {
-	robot := &FakeRobot{}
+	robot := &testutil.FakeRobot{}
 	handler := NewMessageHandler(robot)
 
 	data := marshalMessage(t, &proto_messages.Message{
@@ -94,7 +75,7 @@ func TestPongReturnsNothing(t *testing.T) {
 }
 
 func TestClickLeft(t *testing.T) {
-	robot := &FakeRobot{}
+	robot := &testutil.FakeRobot{}
 	handler := NewMessageHandler(robot)
 
 	data := marshalMessage(t, &proto_messages.Message{
@@ -117,7 +98,7 @@ func TestClickLeft(t *testing.T) {
 }
 
 func TestClickRight(t *testing.T) {
-	robot := &FakeRobot{}
+	robot := &testutil.FakeRobot{}
 	handler := NewMessageHandler(robot)
 
 	data := marshalMessage(t, &proto_messages.Message{
@@ -140,7 +121,7 @@ func TestClickRight(t *testing.T) {
 }
 
 func TestClickMiddle(t *testing.T) {
-	robot := &FakeRobot{}
+	robot := &testutil.FakeRobot{}
 	handler := NewMessageHandler(robot)
 
 	data := marshalMessage(t, &proto_messages.Message{
@@ -163,7 +144,7 @@ func TestClickMiddle(t *testing.T) {
 }
 
 func TestMoveRelative(t *testing.T) {
-	robot := &FakeRobot{X: 200, Y: 300}
+	robot := &testutil.FakeRobot{X: 200, Y: 300}
 	handler := NewMessageHandler(robot)
 
 	data := marshalMessage(t, &proto_messages.Message{
@@ -189,7 +170,7 @@ func TestMoveRelative(t *testing.T) {
 }
 
 func TestInvalidBytes(t *testing.T) {
-	robot := &FakeRobot{}
+	robot := &testutil.FakeRobot{}
 	handler := NewMessageHandler(robot)
 
 	_, err := handler.HandleMessage([]byte{0xFF, 0xFE, 0xFD, 0xFC})

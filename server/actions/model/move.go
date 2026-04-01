@@ -22,7 +22,7 @@ func (m Move) MoveY() int32 {
 	return m.moveY
 }
 
-func (m Move) Process(robot actions.Robot) (actions.Processable, error) {
+func (m Move) Process(robot actions.Robot) (Processable, error) {
 	currentX, currentY := robot.Location()
 	newX := currentX + int(m.moveX)
 	newY := currentY + int(m.moveY)

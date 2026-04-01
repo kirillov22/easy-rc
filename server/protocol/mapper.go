@@ -8,12 +8,12 @@ import (
 	"time"
 )
 
-func FromProto(message *proto_messages.Message) (actions.Processable, error) {
+func FromProto(message *proto_messages.Message) (model.Processable, error) {
 	switch msg := message.GetMsg().(type) {
 	case *proto_messages.Message_Ping:
 		return model.NewPing(), nil
 	case *proto_messages.Message_Pong:
-		return model.NewPong(time.UnixMilli(msg.Pong.Timestamp)), nil
+		return model.NewPong(), nil
 	case *proto_messages.Message_Move:
 		return model.NewMove(msg.Move.MoveX, msg.Move.MoveY), nil
 	case *proto_messages.Message_Click:
@@ -23,12 +23,12 @@ func FromProto(message *proto_messages.Message) (actions.Processable, error) {
 	}
 }
 
-func ToProto(processable actions.Processable) (*proto_messages.Message, error) {
+func ToProto(processable model.Processable) (*proto_messages.Message, error) {
 	switch p := processable.(type) {
 	case model.Pong:
 		return &proto_messages.Message{
 			Msg: &proto_messages.Message_Pong{
-				Pong: &proto_messages.Pong{Timestamp: p.Timestamp().UnixMilli()},
+				Pong: &proto_messages.Pong{Timestamp: time.Now().UnixMilli()},
 			},
 		}, nil
 	case model.Ping:

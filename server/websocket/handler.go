@@ -27,7 +27,7 @@ func (h *MessageHandler) HandleMessage(data []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	r, err := actions.Process(p, h.robot)
+	r, err := p.Process(h.robot)
 	if err != nil {
 		return nil, err
 	}

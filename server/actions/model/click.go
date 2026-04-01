@@ -17,7 +17,7 @@ func (c Click) MouseButton() actions.MouseButton {
 	return c.mouseButton
 }
 
-func (c Click) Process(robot actions.Robot) (actions.Processable, error) {
+func (c Click) Process(robot actions.Robot) (Processable, error) {
 	robot.Click(c.mouseButton)
 	return nil, nil
 }
