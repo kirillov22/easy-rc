@@ -1,64 +1,45 @@
 package main
 
 import (
-	"fmt"
-	"strings"
+	"log"
+	"os"
+	"path/filepath"
 
-	qrcode "github.com/yeqown/go-qrcode/v2"
+	"github.com/yeqown/go-qrcode/v2"
+	"github.com/yeqown/go-qrcode/writer/standard"
 )
 
-type stdoutWriter struct {
-	bitmap [][]bool
+func saveQRImage(url string) string {
+	qr, err := qrcode.New(url)
+	if err != nil {
+		log.Printf("Failed to generate QR code image: %v", err)
+		return ""
+	}
+
+	path := filepath.Join(os.TempDir(), "easy-rc-qr.png")
+	w, err := standard.New(path,
+		standard.WithBuiltinImageEncoder(standard.PNG_FORMAT),
+		standard.WithQRWidth(10),
+		standard.WithBorderWidth(20),
+	)
+	if err != nil {
+		log.Printf("Failed to create QR image writer: %v", err)
+		return ""
+	}
+
+	if err := qr.Save(w); err != nil {
+		log.Printf("Failed to save QR image: %v", err)
+		return ""
+	}
+
+	return path
 }
 
-func (w *stdoutWriter) Write(mat qrcode.Matrix) error {
-	w.bitmap = mat.Bitmap()
-	return nil
-}
-
-func (w *stdoutWriter) Close() error {
-	if w.bitmap == nil {
-		return nil
+func removeQRImage(path string) {
+	if path == "" {
+		return
 	}
-
-	height := len(w.bitmap)
-	width := len(w.bitmap[0])
-	quiet := 2
-
-	paddedHeight := height + quiet*2
-	paddedWidth := width + quiet*2
-
-	isBlack := func(row, col int) bool {
-		r := row - quiet
-		c := col - quiet
-		if r < 0 || r >= height || c < 0 || c >= width {
-			return false
-		}
-		return w.bitmap[r][c]
+	if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+		log.Printf("Failed to remove QR image: %v", err)
 	}
-
-	var sb strings.Builder
-	sb.WriteByte('\n')
-
-	for row := 0; row < paddedHeight; row += 2 {
-		for col := 0; col < paddedWidth; col++ {
-			top := isBlack(row, col)
-			bottom := row+1 < paddedHeight && isBlack(row+1, col)
-
-			switch {
-			case top && bottom:
-				sb.WriteString("█")
-			case top:
-				sb.WriteString("▀")
-			case bottom:
-				sb.WriteString("▄")
-			default:
-				sb.WriteString(" ")
-			}
-		}
-		sb.WriteByte('\n')
-	}
-
-	fmt.Print(sb.String())
-	return nil
 }

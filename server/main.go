@@ -1,8 +1,8 @@
 package main
 
 import (
-	ws "easy-rc-server/websocket"
 	"context"
+	ws "easy-rc-server/websocket"
 	"embed"
 	"flag"
 	"fmt"
@@ -11,10 +11,11 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/signal"
 	"syscall"
 
-	qrcode "github.com/yeqown/go-qrcode/v2"
+	"github.com/getlantern/systray"
 )
 
 //go:embed static/*
@@ -39,35 +40,55 @@ func main() {
 	outboundIP := getOutboundIP()
 	connectURL := fmt.Sprintf("http://%s:%d", outboundIP, port)
 	log.Printf("Starting websocket server at: 0.0.0.0:%d. Outbound address to connect to: %s:%d\n", port, outboundIP, port)
-	printQRCode(connectURL)
+
+	qrImagePath := saveQRImage(connectURL)
 
 	server := &http.Server{}
+
+	shutdown := func() {
+		if err := server.Shutdown(context.Background()); err != nil {
+			log.Printf("Shutdown error: %v", err)
+		}
+		removeQRImage(qrImagePath)
+	}
 
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		sig := <-sigCh
 		log.Printf("Received signal %v, shutting down", sig)
-		if err := server.Shutdown(context.Background()); err != nil {
-			log.Printf("Shutdown error: %v", err)
+		shutdown()
+		os.Exit(0)
+	}()
+
+	go func() {
+		if err := server.Serve(listener); err != http.ErrServerClosed {
+			log.Fatalf("Server error: %v", err)
 		}
 	}()
 
-	if err := server.Serve(listener); err != http.ErrServerClosed {
-		log.Fatalf("Server error: %v", err)
-	}
-}
+	systray.Run(func() {
+		systray.SetTitle("RC")
+		systray.SetTooltip("Easy-RC Server")
 
-func printQRCode(url string) {
-	qr, err := qrcode.New(url)
-	if err != nil {
-		log.Printf("Failed to generate QR code: %v", err)
-		return
-	}
+		mShowQR := systray.AddMenuItem("Show QR Code", "Open QR code to scan")
+		systray.AddSeparator()
+		mQuit := systray.AddMenuItem("Quit", "Shut down the server")
 
-	if err := qr.Save(&stdoutWriter{}); err != nil {
-		log.Printf("Failed to print QR code: %v", err)
-	}
+		go func() {
+			for {
+				select {
+				case <-mShowQR.ClickedCh:
+					if qrImagePath != "" {
+						exec.Command("open", qrImagePath).Start()
+					}
+				case <-mQuit.ClickedCh:
+					shutdown()
+					systray.Quit()
+				}
+			}
+		}()
+	}, nil)
 }
 
 func getOutboundIP() net.IP {
