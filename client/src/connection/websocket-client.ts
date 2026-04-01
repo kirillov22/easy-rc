@@ -28,13 +28,6 @@ export class WebSocketClient {
     this.open();
   }
 
-  disconnect(): void {
-    this.shouldReconnect = false;
-    this.clearReconnectTimer();
-    document.removeEventListener("visibilitychange", this.onVisibilityChange);
-    this.ws?.close();
-  }
-
   reconnect(): void {
     this.clearReconnectTimer();
     this.reconnectDelay = INITIAL_RECONNECT_DELAY_MS;
