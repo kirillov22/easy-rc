@@ -31,7 +31,7 @@ func main() {
 	interval := flag.Duration("interval", 5*time.Millisecond, "Interval between move messages")
 	duration := flag.Duration("duration", 10*time.Second, "Total duration of the stress test")
 	radius := flag.Float64("radius", 50.0, "Radius of the motion pattern")
-	addr := flag.String("addr", "0.0.0.0:50392", "Server address")
+	addr := flag.String("addr", "0.0.0.0:53223", "Server address")
 	flag.Parse()
 
 	u := url.URL{Scheme: "ws", Host: *addr, Path: "/ws"}

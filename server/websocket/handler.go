@@ -4,7 +4,6 @@ import (
 	"easy-rc-server/actions"
 	proto_messages "easy-rc-server/generated/proto-messages"
 	"easy-rc-server/protocol"
-	"sync"
 
 	"google.golang.org/protobuf/proto"
 )
@@ -17,47 +16,30 @@ func NewMessageHandler(robot actions.Robot) *MessageHandler {
 	return &MessageHandler{robot: robot}
 }
 
-func (h *MessageHandler) ParseMessage(data []byte) (actions.Processable, error) {
+func (h *MessageHandler) HandleMessage(data []byte) ([]byte, error) {
 	m := &proto_messages.Message{}
 	if err := proto.Unmarshal(data, m); err != nil {
 		return nil, err
 	}
-	return protocol.FromProto(m)
-}
 
-func (h *MessageHandler) ProcessAction(p actions.Processable, wg *sync.WaitGroup, ch chan<- actions.ActionResponse) {
-	defer wg.Done()
+	p, err := protocol.FromProto(m)
+	if err != nil {
+		return nil, err
+	}
 
 	r, err := actions.Process(p, h.robot)
 	if err != nil {
-		ch <- actions.NewActionResponse(nil, err)
-		return
+		return nil, err
 	}
 
 	if r == nil {
-		ch <- actions.NoopActionResponse()
-		return
+		return nil, nil
 	}
 
 	protoResp, err := protocol.ToProto(r)
 	if err != nil {
-		ch <- actions.NewActionResponse(nil, err)
-		return
+		return nil, err
 	}
 
-	data, err := proto.Marshal(protoResp)
-	if err != nil {
-		ch <- actions.NewActionResponse(nil, err)
-		return
-	}
-
-	ch <- actions.NewActionResponse(data, nil)
+	return proto.Marshal(protoResp)
 }
-
-//func (h *MessageHandler) HandleMessage(data []byte) actions.ActionResponse {
-//	p, err := h.ParseMessage(data)
-//	if err != nil {
-//		return actions.NewActionResponse(nil, err)
-//	}
-//	return h.ProcessAction(p)
-//}
