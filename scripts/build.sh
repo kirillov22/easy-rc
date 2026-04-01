@@ -19,6 +19,6 @@ go test ./...
 
 echo "Building production binary..."
 mkdir -p "$REPO_ROOT/server/bin"
-go build -o "$REPO_ROOT/server/bin" .
+go build -o "$REPO_ROOT/server/bin/easy-rc" .
 
-echo "Production build complete: ./server/bin/server"
+echo "Production build complete: ./server/bin/easy-rc"

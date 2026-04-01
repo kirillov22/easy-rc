@@ -1,4 +1,4 @@
-import type { ConnectionState } from "../connection/websocket-client.js";
+import type { ConnectionState } from "../connection/types.js";
 
 export function setupStatusIndicator(
   dot: HTMLElement,

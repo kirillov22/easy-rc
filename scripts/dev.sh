@@ -5,6 +5,6 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 mkdir -p "$REPO_ROOT/server/bin"
 cd "$REPO_ROOT/server"
-go build -tags debug -o "$REPO_ROOT/server/bin" .
+go build -tags debug -o "$REPO_ROOT/server/bin/easy-rc" .
 
-echo "Dev build complete: server/bin/server"
+echo "Dev build complete: server/bin/easy-rc"

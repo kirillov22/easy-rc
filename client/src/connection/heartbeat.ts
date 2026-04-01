@@ -1,4 +1,5 @@
-import { WebSocketClient } from "./websocket-client.js";
+import type { Connection, Clock } from "./types.js";
+import { systemClock } from "./types.js";
 import { encodePing, decode } from "../proto-helpers.js";
 
 const PING_INTERVAL_MS = 5000;
@@ -7,34 +8,38 @@ const TIMEOUT_CHECK_MS = 2000;
 
 export class Heartbeat {
   private pingTimer: ReturnType<typeof setInterval> | null = null;
-  private lastPong = Date.now();
+  private lastPong: number;
   private timeoutTimer: ReturnType<typeof setInterval> | null = null;
   private onTimeout: (() => void) | null = null;
   private unsubscribe: (() => void) | null = null;
 
-  constructor(private readonly client: WebSocketClient) {}
+  constructor(
+    private readonly client: Connection,
+    private readonly clock: Clock = systemClock,
+  ) {
+    this.lastPong = this.clock.now();
+  }
 
   start(onTimeout: () => void): void {
-    // Protect against start being called twice in a row and creating orphaned objects
     this.stop();
     this.onTimeout = onTimeout;
-    this.lastPong = Date.now();
+    this.lastPong = this.clock.now();
 
     this.unsubscribe = this.client.onMessage((data) => {
       const msg = decode(data);
       if (msg.pong) {
-        this.lastPong = Date.now();
+        this.lastPong = this.clock.now();
       }
     });
 
-    this.pingTimer = setInterval(() => {
+    this.pingTimer = this.clock.setInterval(() => {
       if (this.client.connected) {
         this.client.send(encodePing());
       }
     }, PING_INTERVAL_MS);
 
-    this.timeoutTimer = setInterval(() => {
-      if (this.client.connected && Date.now() - this.lastPong > PONG_TIMEOUT_MS) {
+    this.timeoutTimer = this.clock.setInterval(() => {
+      if (this.client.connected && this.clock.now() - this.lastPong > PONG_TIMEOUT_MS) {
         this.onTimeout?.();
       }
     }, TIMEOUT_CHECK_MS);
@@ -42,11 +47,11 @@ export class Heartbeat {
 
   stop(): void {
     if (this.pingTimer) {
-      clearInterval(this.pingTimer);
+      this.clock.clearInterval(this.pingTimer);
       this.pingTimer = null;
     }
     if (this.timeoutTimer) {
-      clearInterval(this.timeoutTimer);
+      this.clock.clearInterval(this.timeoutTimer);
       this.timeoutTimer = null;
     }
     this.unsubscribe?.();

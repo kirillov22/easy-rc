@@ -1,30 +1,40 @@
-export type ConnectionState = "connecting" | "connected" | "disconnected";
-export type StateListener = (state: ConnectionState) => void;
+import type { Connection, ConnectionState, StateListener, MessageListener, Environment } from "./types.js";
+import { browserEnvironment } from "./types.js";
+export type { ConnectionState, StateListener } from "./types.js";
 
 const INITIAL_RECONNECT_DELAY_MS = 2000;
 const MAX_RECONNECT_DELAY_MS = 30000;
 
-export class WebSocketClient {
+export class WebSocketClient implements Connection {
   private ws: WebSocket | null = null;
   private readonly stateListeners: StateListener[] = [];
-  private messageListeners: ((data: ArrayBuffer) => void)[] = [];
+  private messageListeners: MessageListener[] = [];
   private shouldReconnect = true;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private reconnectDelay = INITIAL_RECONNECT_DELAY_MS;
-  private readonly onVisibilityChange = () => {
-    if (document.visibilityState === "visible" && this.shouldReconnect && !this.connected) {
-      this.clearReconnectTimer();
-      this.reconnectDelay = INITIAL_RECONNECT_DELAY_MS;
-      this.open();
-    }
-  };
+  private wasHidden = false;
+  private unsubscribeVisibility: (() => void) | null = null;
 
-  constructor(private readonly url: string) {}
+  constructor(
+    private readonly url: string,
+    private readonly env: Environment = browserEnvironment,
+  ) {}
 
   connect(): void {
     this.shouldReconnect = true;
     this.reconnectDelay = INITIAL_RECONNECT_DELAY_MS;
-    document.addEventListener("visibilitychange", this.onVisibilityChange);
+    this.unsubscribeVisibility = this.env.onVisibilityChange(() => {
+      if (!this.env.isVisible()) {
+        this.wasHidden = true;
+        return;
+      }
+      if (this.shouldReconnect && this.wasHidden) {
+        this.wasHidden = false;
+        this.clearReconnectTimer();
+        this.reconnectDelay = INITIAL_RECONNECT_DELAY_MS;
+        this.open();
+      }
+    });
     this.open();
   }
 
@@ -36,7 +46,7 @@ export class WebSocketClient {
 
   private clearReconnectTimer(): void {
     if (this.reconnectTimer) {
-      clearTimeout(this.reconnectTimer);
+      this.env.clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
     }
   }
@@ -47,7 +57,7 @@ export class WebSocketClient {
     }
   }
 
-  onMessage(handler: (data: ArrayBuffer) => void): () => void {
+  onMessage(handler: MessageListener): () => void {
     this.messageListeners.push(handler);
     return () => {
       this.messageListeners = this.messageListeners.filter(h => h !== handler);
@@ -63,9 +73,14 @@ export class WebSocketClient {
   }
 
   private open(): void {
-    this.ws?.close();
+    if (this.ws) {
+      this.ws.onclose = null;
+      this.ws.onerror = null;
+      this.ws.close();
+    }
     this.notify("connecting");
-    const ws = new WebSocket(this.url);
+    const ws = this.env.createWebSocket(this.url);
+    this.ws = ws;
     ws.binaryType = "arraybuffer";
 
     ws.onopen = () => {
@@ -82,10 +97,11 @@ export class WebSocketClient {
     };
 
     ws.onclose = () => {
+      if (this.ws !== ws) return;
       this.notify("disconnected");
       this.ws = null;
-      if (this.shouldReconnect && document.visibilityState === "visible") {
-        this.reconnectTimer = setTimeout(() => this.open(), this.reconnectDelay);
+      if (this.shouldReconnect && this.env.isVisible()) {
+        this.reconnectTimer = this.env.setTimeout(() => this.open(), this.reconnectDelay);
         this.reconnectDelay = Math.min(this.reconnectDelay * 2, MAX_RECONNECT_DELAY_MS);
       }
     };
@@ -94,8 +110,6 @@ export class WebSocketClient {
       console.error("WebSocket error:", event);
       ws.close();
     };
-
-    this.ws = ws;
   }
 
   private notify(state: ConnectionState): void {

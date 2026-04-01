@@ -1,10 +1,7 @@
 import "./style.css";
 import { WebSocketClient, buildWsUrl } from "./connection/websocket-client.js";
 import { Heartbeat } from "./connection/heartbeat.js";
-import { setupTouchpad, type AccelLevel } from "./input/touchpad.js";
-import { setupButtons } from "./input/buttons.js";
-import { setupStatusIndicator } from "./ui/status-indicator.js";
-import { encodeMove, encodeClick } from "./proto-helpers.js";
+import { bootstrapApp } from "./app.js";
 
 function getElement(id: string): HTMLElement {
   const el = document.getElementById(id);
@@ -13,34 +10,15 @@ function getElement(id: string): HTMLElement {
 }
 
 const client = new WebSocketClient(buildWsUrl());
-const heartbeat = new Heartbeat(client);
 
-const updateStatus = setupStatusIndicator(
-  getElement("status-dot"),
-  getElement("status-text"),
-);
-
-client.onStateChange((state) => {
-  updateStatus(state);
-  if (state === "connected") {
-    heartbeat.start(() => client.reconnect());
-  } else if (state === "disconnected") {
-    heartbeat.stop();
-  }
+bootstrapApp({
+  elements: {
+    statusDot: getElement("status-dot"),
+    statusText: getElement("status-text"),
+    touchpad: getElement("touchpad"),
+    buttons: getElement("buttons"),
+    accelSelect: getElement("accel-select") as HTMLSelectElement,
+  },
+  connection: client,
+  heartbeat: new Heartbeat(client),
 });
-
-const touchpad = setupTouchpad(getElement("touchpad"), (dx, dy) => {
-  client.send(encodeMove(dx, dy));
-});
-
-const accelSelect = getElement("accel-select") as HTMLSelectElement;
-accelSelect.value = touchpad.accelLevel;
-accelSelect.addEventListener("change", () => {
-  touchpad.setAccelLevel(accelSelect.value as AccelLevel);
-});
-
-setupButtons(getElement("buttons"), (button) => {
-  client.send(encodeClick(button));
-});
-
-client.connect();
