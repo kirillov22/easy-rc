@@ -14,6 +14,9 @@ npm run proto
 echo "Building client..."
 npm run build
 
+echo "Running client tests..."
+npm run test
+
 echo "Copying dist to server/static..."
 rm -rf "$REPO_ROOT/server/static"
 cp -r dist "$REPO_ROOT/server/static"

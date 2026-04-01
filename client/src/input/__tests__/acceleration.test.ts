@@ -17,7 +17,7 @@ describe("applyAcceleration", () => {
   });
 
   it("applies higher amplification at higher levels", () => {
-    const levels: AccelLevel[] = ["small", "medium", "high"];
+    const levels: AccelLevel[] = ["low", "medium", "high"];
     const results = levels.map((level) => applyAcceleration(10, 10, level)[0]);
     for (let i = 1; i < results.length; i++) {
       expect(results[i]).toBeGreaterThan(results[i - 1]);
@@ -34,13 +34,14 @@ describe("applyAcceleration", () => {
 describe("isValidAccelLevel", () => {
   it("accepts valid levels", () => {
     expect(isValidAccelLevel("off")).toBe(true);
-    expect(isValidAccelLevel("small")).toBe(true);
+    expect(isValidAccelLevel("low")).toBe(true);
     expect(isValidAccelLevel("medium")).toBe(true);
-    expect(isValidAccelLevel("large")).toBe(true);
+    expect(isValidAccelLevel("high")).toBe(true);
   });
 
   it("rejects invalid values", () => {
     expect(isValidAccelLevel("huge")).toBe(false);
     expect(isValidAccelLevel("")).toBe(false);
+    expect(isValidAccelLevel("33")).toBe(false);
   });
 });

@@ -1,8 +1,8 @@
-export type AccelLevel = "off" | "small" | "medium" | "high";
+export type AccelLevel = "off" | "low" | "medium" | "high";
 
 export const ACCEL_CONFIGS: Record<AccelLevel, { threshold: number; gain: number } | null> = {
   off: null,
-  small:  { threshold: 8, gain: 0.3 },
+  low:  { threshold: 8, gain: 0.3 },
   medium: { threshold: 6, gain: 0.6 },
   high:  { threshold: 4, gain: 0.9 },
 };

@@ -109,10 +109,10 @@ describe("bootstrapApp", () => {
   });
 
   it("loads accel level from storage", () => {
-    const storage = createFakeStorage({ accel: "large" });
+    const storage = createFakeStorage({ accel: "high" });
     const conn = new FakeConnection();
     const elements = createElements();
-    for (const val of ["off", "small", "medium", "large"]) {
+    for (const val of ["off", "low", "medium", "high"]) {
       const opt = document.createElement("option");
       opt.value = val;
       elements.accelSelect.appendChild(opt);
@@ -121,6 +121,6 @@ describe("bootstrapApp", () => {
 
     bootstrapApp({ elements, connection: conn, heartbeat, storage });
 
-    expect(elements.accelSelect.value).toBe("large");
+    expect(elements.accelSelect.value).toBe("high");
   });
 });
