@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"easy-rc-server/actions"
 	ws "easy-rc-server/websocket"
 	"embed"
 	"flag"
@@ -23,7 +24,7 @@ var staticFiles embed.FS
 
 func main() {
 	flag.Parse()
-	http.HandleFunc("/ws", ws.Server)
+	http.Handle("/ws", ws.NewServer(actions.NewRobotGo()))
 
 	staticContent, err := fs.Sub(staticFiles, "static")
 	if err != nil {

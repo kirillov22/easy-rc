@@ -51,7 +51,15 @@ func checkLocalOrigin(r *http.Request) bool {
 	return false
 }
 
-func Server(w http.ResponseWriter, r *http.Request) {
+type Server struct {
+	robot actions.Robot
+}
+
+func NewServer(robot actions.Robot) *Server {
+	return &Server{robot: robot}
+}
+
+func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print("upgrade:", err)
@@ -59,7 +67,7 @@ func Server(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 
-	handler := NewMessageHandler(actions.NewRobotGo())
+	handler := NewMessageHandler(s.robot)
 
 	for {
 		_, message, err := c.ReadMessage()
