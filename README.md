@@ -60,7 +60,11 @@ All scripts output the server binary to `server/bin`.
 ## TODO list
 - [x] Migrate from the custom-built protocol to the protobuf schema
 - [x] Migrate the code (merge client) into a monorepo to easier share the protobuf models
-- [ ] Create QR code/ simple way for client to connect - https://github.com/caseymrm/menuet
-- [ ] Refactor server to have the websocket be decoupled from the command processing so it can be tested
-- [x] Create scripts that build & run the applications all at once
-- [ ] Tests xD
+- [x] Create QR code/ simple way for client to connect - https://github.com/caseymrm/menuet
+- [x] Refactor server to have the websocket be decoupled from the command processing so it can be tested
+- [ ] Create scripts that build & run the applications all at once
+- [ ] Get CI/CD pipeline working in github actions
+- [ ] Implement double clicking
+- [ ] Implement clicking on the touchpad instead of relying on the buttons
+- [ ] Fix reconnection bug after refreshing the browser it doesn't reconnect straight away
+- [ ] Rewrite client to some frontend framework. Getting quite tiresome manually managing the state even though it is small 
