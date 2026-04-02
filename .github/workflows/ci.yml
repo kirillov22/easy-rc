@@ -57,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: easy-rc
-          path: server/dist/
+          path: server/bin/
           retention-days: 7
 
   publish:
