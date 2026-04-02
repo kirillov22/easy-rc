@@ -5,5 +5,7 @@ REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 
 cd "$REPO_ROOT/client"
 
+mkdir -p src/generated
+
 echo "Generating protobuf TypeScript stubs..."
 npm run proto
