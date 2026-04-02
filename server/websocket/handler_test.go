@@ -182,9 +182,3 @@ func TestInvalidBytes(t *testing.T) {
 		t.Error("invalid message should not trigger any robot calls")
 	}
 }
-
-func TestShouldFail(t *testing.T) {
-	if 1 != 2 {
-		t.Error("invalid message should not trigger any robot calls")
-	}
-}
