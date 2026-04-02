@@ -8,6 +8,5 @@ REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 "$REPO_ROOT/scripts/client/client-compile.sh"
 "$REPO_ROOT/scripts/client/client-lint.sh"
 "$REPO_ROOT/scripts/client/client-test.sh"
-"$REPO_ROOT/scripts/client/client-copy-into-server.sh"
 
-echo "Client pipeline complete."
+echo "Client build complete."

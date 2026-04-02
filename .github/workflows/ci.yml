@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Build, lint and test client
+        run: ./scripts/client/client-full-build.sh
+
+      - name: Upload client dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-dist
+          path: client/dist/
+          retention-days: 1
+
+  server:
+    runs-on: macos-latest
+    needs: client
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: .go-version
+          cache-dependency-path: server/go.sum
+
+      - name: Install protoc
+        run: brew install protobuf
+
+      - name: Install protoc-gen-go
+        run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+
+      - name: Generate Go proto stubs
+        run: ./scripts/proto.sh
+
+      - name: Download client dist
+        uses: actions/download-artifact@v4
+        with:
+          name: client-dist
+          path: server/static/
+
+      - name: Lint
+        run: ./scripts/server/server-lint.sh
+
+      - name: Test
+        run: ./scripts/server/server-test.sh
+
+  package:
+    if: github.ref == 'refs/heads/master'
+    runs-on: macos-latest
+    needs: [client, server]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: .go-version
+          cache-dependency-path: server/go.sum
+
+      - name: Install protoc
+        run: brew install protobuf
+
+      - name: Install protoc-gen-go
+        run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+
+      - name: Generate Go proto stubs
+        run: ./scripts/proto.sh
+
+      - name: Download client dist
+        uses: actions/download-artifact@v4
+        with:
+          name: client-dist
+          path: server/static/
+
+      - name: Build binary
+        run: ./scripts/server/server-compile.sh
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: easy-rc-darwin
+          path: server/bin/easy-rc
+          retention-days: 30
