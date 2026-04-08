@@ -51,7 +51,7 @@ export class WebSocketClient implements Connection {
     }
   }
 
-  send(data: Uint8Array): void {
+  send(data: Uint8Array<ArrayBuffer>): void {
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(data);
     }
