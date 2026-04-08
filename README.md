@@ -1,6 +1,8 @@
-# Mouse Server
+# Easy-RC (EZ-RC)
 
-Soon to be a single monorepo that contains the client, server and shared protobuf model for the two apps.
+![Logo](./assets/logo.svg)
+
+A MacOS (could potentially work on Linux and Windows, but I have not tested this) application that runs on your computer and allows your phone or any other device with a browser to connect and control the mouse.
 
 ## Prerequisites
 - Golang version v1.25 - https://go.dev/dl/
@@ -41,29 +43,52 @@ Soon to be a single monorepo that contains the client, server and shared protobu
 
 # Scripts
 
-Build scripts are in the `scripts/` directory. They can be run from any working directory.
+All scripts are in the `scripts/` directory and can be run from any working directory.
+
+### Top-level
 
 | Script | Description |
 |--------|-------------|
-| `./scripts/proto.sh` | Regenerate Go code from the protobuf schema |
-| `./scripts/dev.sh` | Build the server with debug logging enabled |
-| `./scripts/build.sh` | Production build: generates proto, runs vet + tests, then builds the binary |
+| `scripts/build.sh` | Full production build — runs client build, copies dist into server, then runs server build |
 
-All scripts output the server binary to `server/bin`.
+### Client (`scripts/client/`)
+
+| Script | Description |
+|--------|-------------|
+| `client-install.sh` | Install client dependencies (`npm ci`) |
+| `client-proto.sh` | Generate TypeScript protobuf stubs |
+| `client-compile.sh` | Compile client code |
+| `client-lint.sh` | Lint client code |
+| `client-test.sh` | Run client tests |
+| `client-copy-into-server.sh` | Copy compiled client dist into `server/static/` |
+| `client-full-build.sh` | Full client pipeline: install, proto, compile, lint, test |
+
+### Server (`scripts/server/`)
+
+| Script | Description |
+|--------|-------------|
+| `server-proto.sh` | Generate Go protobuf stubs |
+| `server-compile.sh` | Build production binary to `server/bin/easy-rc` |
+| `server-compile-dev.sh` | Build debug binary (with debug tag) to `server/bin/easy-rc` |
+| `server-lint.sh` | Lint server code (`go vet`) |
+| `server-test.sh` | Run server tests |
+| `server-full-build.sh` | Full server pipeline: proto, compile, lint, test |
 
 # Running
 
 ## Server
-- Development: `./scripts/dev.sh && ./server/bin/easy-rc`
+- Development: `./scripts/server/server-compile-dev.sh && ./server/bin/easy-rc`
 - Production: `./scripts/build.sh && ./server/bin/easy-rc`
+
+You should see an `RC` icon in the status bar. Click it → Click show QR code → Scan the QR code with the camera on your phone. Now you should be able to control the computer with your phone.
 
 ## TODO list
 - [x] Migrate from the custom-built protocol to the protobuf schema
 - [x] Migrate the code (merge client) into a monorepo to easier share the protobuf models
 - [x] Create QR code/ simple way for client to connect - https://github.com/caseymrm/menuet
 - [x] Refactor server to have the websocket be decoupled from the command processing so it can be tested
-- [ ] Create scripts that build & run the applications all at once
-- [ ] Get CI/CD pipeline working in github actions
+- [x] Create scripts that build & run the applications all at once
+- [x] Get CI/CD pipeline working in github actions
 - [ ] Implement double clicking
 - [ ] Implement clicking on the touchpad instead of relying on the buttons
 - [ ] Fix reconnection bug after refreshing the browser it doesn't reconnect straight away
