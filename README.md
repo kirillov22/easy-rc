@@ -54,8 +54,8 @@ All scripts output the server binary to `server/bin`.
 # Running
 
 ## Server
-- Development: `./scripts/dev.sh && ./server/bin/easy-rc-server`
-- Production: `./scripts/build.sh && ./server/bin/easy-rc-server`
+- Development: `./scripts/dev.sh && ./server/bin/easy-rc`
+- Production: `./scripts/build.sh && ./server/bin/easy-rc`
 
 ## TODO list
 - [x] Migrate from the custom-built protocol to the protobuf schema
