@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 520" width="400" height="520">
+  <!-- WiFi signal arcs (filled crescents) -->
+  <!-- Outer arc -->
+  <path d="M 140 68 A 78 78 0 0 1 260 68 L 252 76 A 68 68 0 0 0 148 76 Z" fill="#1a2744"/>
+  <!-- Middle arc -->
+  <path d="M 155 85 A 58 58 0 0 1 245 85 L 238 93 A 48 48 0 0 0 162 93 Z" fill="#1a2744"/>
+  <!-- Inner arc -->
+  <path d="M 170 102 A 38 38 0 0 1 230 102 L 224 110 A 28 28 0 0 0 176 110 Z" fill="#1a2744"/>
+
+  <!-- Shield (filled outline) -->
+  <path d="M 200 118 C 125 118 95 140 95 162 L 95 240 C 95 322 200 395 200 395 C 200 395 305 322 305 240 L 305 162 C 305 140 275 118 200 118 Z
+           M 200 130 C 268 130 293 148 293 162 L 293 240 C 293 312 200 380 200 380 C 200 380 107 312 107 240 L 107 162 C 107 148 132 130 200 130 Z" fill="#1a2744" fill-rule="evenodd"/>
+
+  <!-- Mouse body (pill/capsule outline) -->
+  <!-- Outer pill -->
+  <rect x="148" y="170" width="104" height="155" rx="52" ry="52" fill="#1a2744"/>
+  <!-- Inner cutout -->
+  <rect x="158" y="180" width="84" height="135" rx="42" ry="42" fill="white"/>
+
+  <!-- Button separator (horizontal line across mouse) -->
+  <rect x="148" y="254" width="104" height="2" fill="#1a2744"/>
+
+  <!-- Center divider (vertical line for left/right buttons) -->
+  <rect x="196" y="180" width="8" height="75" fill="#1a2744"/>
+
+  <!-- Scroll wheel -->
+  <ellipse cx="200" cy="220" rx="6" ry="10" fill="#1a2744"/>
+
+  <!-- Text EZ-RC -->
+  <text x="90" y="468" font-family="Arial,Helvetica,sans-serif" font-weight="bold" font-size="72" font-style="italic" fill="#2196F3">EZ</text>
+  <text x="186" y="468" font-family="Arial,Helvetica,sans-serif" font-weight="bold" font-size="72" font-style="italic" fill="#1a2744">-RC</text>
+</svg>
